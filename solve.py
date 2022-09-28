@@ -2,10 +2,15 @@ import argparse
 import json
 from copy import deepcopy
 
+# Accepts argements like: python solve.py -v 0 -f image/571.json
 ap = argparse.ArgumentParser()
 ap.add_argument("-f", "--file", default='image/595.json', help="Path to the analyzed colour group.json")
-args = vars(ap.parse_args())
+ap.add_argument("-v", "--verbose", default=2, help="Verbose Depth", type=int)
 
+args = vars(ap.parse_args())
+verbose = args['verbose']
+
+# Load game board
 uniq_colors, group_lists = None, None
 with open(args["file"], "r") as f:
     dict = json.load(f)
@@ -34,7 +39,8 @@ def state_hash_char(state):
     '''This hashing function first hash each column and then sorts them to avoid visiting equvalent boards.'''
     cols = []
     for col in state:
-        cols.append(bytes(col + [255] * (height - len(col))))
+        cols.append(bytes(col))
+        # cols.append(bytes(col + [255] * (height - len(col)))) # This is probably not needed to have the bytes at constant length equal to board height.
     cols.sort()
     return hash(tuple(cols))
 
@@ -102,21 +108,23 @@ def column_complete(column):
 
 
 def find_possibilities(board_state):
+    """Find possible actions and results pairs based on the current game board state"""
     actions = []
-    for i in range(0, columns):
-        for j in range(0, columns):
-            if column_complete(board_state[j]):
-                # Filter out columns that are already complete
+    for fm in range(0, columns):
+        for to in range(0, columns):
+            # Filter out fm columns that are already complete
+            if column_complete(board_state[to]):
                 continue
-            if i == j:
+            if fm == to:
                 continue
-            new_state = perform_action(board_state, i, j)
+            new_state = perform_action(board_state, fm, to)
             if new_state is not None:
-                action = (i, j)
+                action = (fm, to)
                 yield (action, new_state)
 
 
 def is_solved(board_state):
+    """Determines if the game board is solved"""
     for column in board_state:
         if len(column) > 0:
             if not column_complete(column):
@@ -125,6 +133,7 @@ def is_solved(board_state):
 
 
 def search(actions, board_states, verbose=0):
+    '''Recursive search function. On failure, returns None. On success returns the action '''
     global deepest_search
 
     # Keep statistics
@@ -143,7 +152,8 @@ def search(actions, board_states, verbose=0):
         # Check if this actions results in a solved board
         if is_solved(po_new_state):
             return ([po_action], [po_new_state])
-        # Check if the new action results in one that we have already been before
+
+        # Check if the new action results in one that we have already been before. (This might be redundent because of the next hash check)
         if po_new_state in board_states:
             continue
 
@@ -165,7 +175,6 @@ def search(actions, board_states, verbose=0):
     return None
 
 
-verbose = 20
 result = search([], [initial_board_state], verbose)
 if result is not None:
     actions, board_states = result
