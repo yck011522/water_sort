@@ -4,32 +4,6 @@ import cv2
 import json
 from select_points_array import *
 
-# initialize the list of reference points and boolean indicating
-# whether cropping is being performed or not
-refPt = []
-cropping = False
-image = None
-
-# def click_and_crop(event, x, y, flags, param):
-# 	# grab references to the global variables
-# 	global refPt, cropping
-# 	# if the left mouse button was clicked, record the starting
-# 	# (x, y) coordinates and indicate that cropping is being
-# 	# performed
-# 	if event == cv2.EVENT_LBUTTONDOWN:
-# 		refPt = [(x, y)]
-# 		cropping = True
-# 	# check to see if the left mouse button was released
-# 	elif event == cv2.EVENT_LBUTTONUP:
-# 		# record the ending (x, y) coordinates and indicate that
-# 		# the cropping operation is finished
-# 		refPt.append((x, y))
-# 		cropping = False
-# 		# draw a rectangle around the region of interest
-# 		cv2.rectangle(image, refPt[0], refPt[1], (0, 255, 0), 2)
-# 		cv2.imshow("image", image)
-
-
 def draw_points(image, points_lists):
 	i = 0
 	for points in points_lists:
@@ -83,11 +57,9 @@ def group_colors(image, roi_pts, threshold = 20):
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", default='image.jpg', help="Path to the image")
+ap.add_argument("-i", "--image", default='image/567.jpg', help="Path to the image")
 ap.add_argument("--scale_factor", default=0.5, help="Scale Factor", type=float)
 ap.add_argument("-o", "--file_out", default='', help="Path to the image")
-# ap.add_argument("--save_roi", default=False, help="Save ROI as roi.json", type=float)
-# ap.add_argument("--use_roi_json", default=True, help="Use ROI from roi.json", type=float)
 
 args = vars(ap.parse_args())
 
