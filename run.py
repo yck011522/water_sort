@@ -4,6 +4,11 @@ import cv2
 import json
 from select_points_array import *
 
+# This file allows user to use openCV for select the locations of the water sort colours
+# Selected colours are grouped based on RGB color similarity
+# If color analysis is correct, the number of unique colours should be equal to the number of columns
+# The analysis result can be saved as json file for solve.py to solve.
+
 def draw_points(image, points_lists):
 	i = 0
 	for points in points_lists:
